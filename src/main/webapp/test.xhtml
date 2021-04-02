@@ -1,20 +1,75 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:ui="http://java.sun.com/jsf/facelets"
       xmlns:f="http://java.sun.com/jsf/core"
       xmlns:p="http://primefaces.org/ui"
       xmlns:h="http://java.sun.com/jsf/html">
 
     <h:head>
         <title>PrimeFaces Test</title>
-        <h:outputScript name="test.js" />
     </h:head>
     <h:body>
 
-        <h1>#{testView.string}</h1>
-        <h:form id="frmTest">
-            
-        </h:form>
+        <div class="card">
+            <h2>Global filter works only on p:column that has atribute filtarable="true".</h2>
+            <h2>Expected behaviour: Global filter should work on all p:columns that has atribute filterBy="".</h2>
+            <h:form>
+                <p:dataTable var="customer" value="#{dtFilterView.customers1}" widgetVar="customersTable"
+                             emptyMessage="No customers found with given criteria"
+                             filteredValue="#{dtFilterView.filteredCustomers1}">
 
+                    <f:facet name="header">
+                        <div class="p-d-flex p-ai-center p-jc-between">
+                            <span>List of Customers</span>
+                            <p:inputText id="globalFilter" onkeyup="PF('customersTable').filter()" style="width:10rem" placeholder="Enter keyword" />
+                        </div>
+                    </f:facet>
+
+                    <p:column headerText="Name" sortBy="#{customer.name}" filterBy="#{customer.name}" filterable="true">
+                        <h:outputText value="#{customer.name}" />
+                    </p:column>
+
+                    <p:column headerText="Country" sortBy="#{customer.country.name}" filterBy="#{customer.country.name}" filterable="false">
+                        <span class="flag flag-#{customer.country.code}" style="width: 30px; height: 20px" />
+                        <h:outputText style="vertical-align: middle; margin-left: .5rem" value="#{customer.country.name}" />
+                    </p:column>
+
+                    <p:column field="representative" headerText="Representative" filterMatchMode="exact" filterable="false"
+                              sortBy="#{customer.representative.name}">
+                        <f:facet name="filter">
+                            <p:selectOneMenu onchange="PF('customersTable').filter()" styleClass="custom-filter">
+                                <f:selectItem itemLabel="All" itemValue="#{null}" noSelectionOption="true" />
+                                <f:selectItems value="#{dtFilterView.representatives}" />
+                            </p:selectOneMenu>
+                        </f:facet>
+
+                        <p:graphicImage name="images/avatar/#{customer.representative.image}" library="demo" width="32"
+                                        style="vertical-align: middle" />
+                        <h:outputText style="vertical-align: middle; margin-left: .5rem" value="#{customer.representative.name}" />
+                    </p:column>
+
+                    <p:column field="date" headerText="Join Date" filterMatchMode="range" filterable="false">
+                        <f:facet name="filter">
+                            <p:datePicker selectionMode="range" onchange="PF('customersTable').filter()" />
+                        </f:facet>
+                    </p:column>
+
+                    <p:column field="status" headerText="Status" filterMatchMode="exact" filterable="false">
+                        <f:facet name="filter">
+                            <p:selectOneMenu onchange="PF('customersTable').filter()" styleClass="custom-filter">
+                                <f:selectItem itemLabel="All" itemValue="#{null}" noSelectionOption="true" />
+                                <f:selectItems value="#{dtFilterView.customerStatus}" />
+                            </p:selectOneMenu>
+                        </f:facet>
+
+                        <span class="customer-badge status-#{customer.status.name().toLowerCase()}">#{customer.status.toString()}</span>
+                    </p:column>
+
+                    <p:column headerText="Activity" sortBy="#{customer.activity}" filterable="false">
+                        <p:progressBar value="#{customer.activity}" displayOnly="true" style="height: .5rem" />
+                    </p:column>
+
+                </p:dataTable>
+            </h:form>
+        </div>
     </h:body>
 </html>
